@@ -2,7 +2,7 @@
 include "koneksimysql.php";
 header('Content-Type: application/json');
 
-$sql = "SELECT * FROM product where diskonjual > 0 order by view asc limit 6";
+$sql = "SELECT * FROM product where diskonjual > 0 order by diskonjual asc limit 6";
 
 $hasil = mysqli_query($conn, $sql);
 
