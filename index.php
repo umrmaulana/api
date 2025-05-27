@@ -2,6 +2,21 @@
 include "koneksimysql.php";
 header('Content-Type: text/html; charset=utf-8');
 
+$labels = [
+    "merk" => "Merk",
+    "kategori" => "Kategori",
+    "satuan" => "Satuan",
+    "hargabeli" => "Harga Beli",
+    "diskonbeli" => "Diskon Beli",
+    "hargapokok" => "Harga Pokok",
+    "hargajual" => "Harga Jual",
+    "diskonjual" => "Diskon Jual",
+    "stok" => "Stok",
+    "foto" => "Foto Baru",
+    "deskripsi" => "Deskripsi",
+    "view" => "View"
+];
+
 // Create
 if (isset($_POST['tambah'])) {
     $kode = $_POST['kode'];
@@ -166,15 +181,18 @@ if (isset($_GET['hapus'])) {
                                 </div>
                                 <div class="modal-body">
                                     <?php foreach ($row as $key => $val): ?>
-                                        <?php if ($key == 'foto'): ?>
-                                            <input type="hidden" name="old_foto" value="<?= $val ?>">
-                                            <label>Foto Baru</label><input type="file" name="foto" class="form-control mb-2">
-                                            <img src="images/product/<?= $val ?>" width="80"><br><br>
-                                        <?php elseif ($key == 'deskripsi'): ?>
-                                            <textarea class="form-control mb-2" name="<?= $key ?>"><?= $val ?></textarea>
-                                        <?php elseif ($key == 'kode'): ?>
+                                        <?php if ($key == 'kode'): ?>
                                             <input type="hidden" name="kode" value="<?= $val ?>">
+                                        <?php elseif ($key == 'foto'): ?>
+                                            <input type="hidden" name="old_foto" value="<?= $val ?>">
+                                            <label class="form-label"><?= $labels[$key] ?></label>
+                                            <input type="file" name="foto" class="form-control mb-2">
+                                            <img src="images/product/<?= $val ?>" width="80" class="mt-2 mb-3"><br>
+                                        <?php elseif ($key == 'deskripsi'): ?>
+                                            <label class="form-label"><?= $labels[$key] ?></label>
+                                            <textarea class="form-control mb-2" name="<?= $key ?>"><?= $val ?></textarea>
                                         <?php else: ?>
+                                            <label class="form-label"><?= $labels[$key] ?></label>
                                             <input class="form-control mb-2" name="<?= $key ?>" value="<?= $val ?>">
                                         <?php endif; ?>
                                     <?php endforeach; ?>
