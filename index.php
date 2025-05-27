@@ -157,7 +157,7 @@ if (isset($_GET['hapus'])) {
                 <tr>
                     <?php foreach ($row as $k => $v): ?>
                         <?php if ($k == 'foto'): ?>
-                            <td><img src="../images/product/<?= $v ?>" width="60"></td>
+                            <td><img src="images/product/<?= $v ?>" width="60"></td>
                         <?php else: ?>
                             <td><?= htmlspecialchars($v) ?></td>
                         <?php endif; ?>
