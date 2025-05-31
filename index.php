@@ -35,7 +35,7 @@ if (isset($_POST['tambah'])) {
     $filename = '';
     if ($_FILES['foto']['name']) {
         $filename = $_FILES['foto']['name'];
-        move_uploaded_file($_FILES['foto']['tmp_name'], "../images/product/" . $filename);
+        move_uploaded_file($_FILES['foto']['tmp_name'], "images/product/" . $filename);
     }
 
     $conn->query("INSERT INTO product VALUES (
@@ -65,7 +65,7 @@ if (isset($_POST['update'])) {
     $foto = $_POST['old_foto'];
     if ($_FILES['foto']['name']) {
         $foto = $_FILES['foto']['name'];
-        move_uploaded_file($_FILES['foto']['tmp_name'], "../images/product/" . $foto);
+        move_uploaded_file($_FILES['foto']['tmp_name'], "images/product/" . $foto);
     }
 
     $conn->query("UPDATE product SET
