@@ -16,6 +16,7 @@ if (!$data) {
 } else {
     $getstatus = 1;
     $datauser = array(
+        'id' => $data->id,
         'username' => $data->username,
         'nama' => $data->nama,
         'password' => $data->password,
