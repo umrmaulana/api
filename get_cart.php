@@ -16,7 +16,7 @@ try {
         $stmt = $conn->prepare("
                     SELECT c.*, p.merk, p.harga_jual, p.harga_pokok, p.diskon_jual, p.foto 
                     FROM carts c
-                    JOIN product p ON c.product_id = p.id
+                    JOIN product p ON c.product_id = p.kode
                     WHERE c.user_id = ?
                 ");
         $stmt->execute([$user_id]);
