@@ -13,7 +13,7 @@ try {
     case 'get_cart':
       $user_id = $_GET['user_id'] ?? 0;
       if ($user_id > 0) {
-        $stmt = $db->prepare("
+        $stmt = $conn->prepare("
                     SELECT c.*, p.merk, p.harga_jual, p.harga_pokok, p.diskon_jual, p.foto 
                     FROM carts c
                     JOIN product p ON c.product_id = p.id
@@ -42,17 +42,17 @@ try {
 
       if ($user_id > 0 && !empty($product_id) && $quantity > 0) {
         // Cek apakah item sudah ada di cart
-        $stmt = $db->prepare("SELECT * FROM carts WHERE user_id = ? AND product_id = ?");
+        $stmt = $conn->prepare("SELECT * FROM carts WHERE user_id = ? AND product_id = ?");
         $stmt->execute([$user_id, $product_id]);
         $existing_item = $stmt->fetch();
 
         if ($existing_item) {
           // Update quantity jika sudah ada
-          $stmt = $db->prepare("UPDATE carts SET quantity = ? WHERE user_id = ? AND product_id = ?");
+          $stmt = $conn->prepare("UPDATE carts SET quantity = ? WHERE user_id = ? AND product_id = ?");
           $stmt->execute([$quantity, $user_id, $product_id]);
         } else {
           // Tambahkan baru jika belum ada
-          $stmt = $db->prepare("INSERT INTO carts (user_id, product_id, quantity, created_at) VALUES (?, ?, ?, NOW())");
+          $stmt = $conn->prepare("INSERT INTO carts (user_id, product_id, quantity, created_at) VALUES (?, ?, ?, NOW())");
           $stmt->execute([$user_id, $product_id, $quantity]);
         }
 
@@ -74,7 +74,7 @@ try {
       $product_id = $input['product_id'] ?? '';
 
       if ($user_id > 0 && !empty($product_id)) {
-        $stmt = $db->prepare("DELETE FROM carts WHERE user_id = ? AND product_id = ?");
+        $stmt = $conn->prepare("DELETE FROM carts WHERE user_id = ? AND product_id = ?");
         $stmt->execute([$user_id, $product_id]);
 
         $response = [
