@@ -34,8 +34,11 @@ if (
         exit();
     }
 
-    $stmt = $conn->prepare("INSERT INTO ship_address (user_id, province_id, province_name,city_id, city_name, address, recipt_name, postal_code) 
-                            VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+    $stmt = $conn->prepare("INSERT INTO ship_address (
+    user_id, province_id, province_name, city_id, city_name, address, recipt_name, postal_code, is_active) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+
+    $is_active = '0';
+
     if (
         $stmt->execute([
             $user_id,
@@ -45,7 +48,8 @@ if (
             $city_name,
             $address,
             $recipt_name,
-            $postal_code
+            $postal_code,
+            $is_active
         ])
     ) {
         http_response_code(200);
