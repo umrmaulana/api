@@ -37,18 +37,19 @@ if (
     $stmt = $conn->prepare("INSERT INTO ship_address (
     user_id, province_id, province_name, city_id, city_name, address, recipt_name, postal_code) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
 
-    if (
-        $stmt->execute([
-            $user_id,
-            $province_id,
-            $province_name,
-            $city_id,
-            $city_name,
-            $address,
-            $recipt_name,
-            $postal_code
-        ])
-    ) {
+    $stmt->bind_param(
+        "iisisssi",
+        $user_id,
+        $province_id,
+        $province_name,
+        $city_id,
+        $city_name,
+        $address,
+        $recipt_name,
+        $postal_code
+    );
+
+    if ($stmt->execute()) {
         http_response_code(200);
         echo json_encode([
             "success" => true,
@@ -58,7 +59,8 @@ if (
         http_response_code(500);
         echo json_encode([
             "success" => false,
-            "message" => "Gagal menambahkan alamat."
+            "message" => "Gagal menambahkan alamat.",
+            "error" => $stmt->error // bantu debug
         ]);
     }
 } else {
