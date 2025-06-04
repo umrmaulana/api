@@ -14,7 +14,7 @@ try {
       $user_id = $_GET['user_id'] ?? 0;
       if ($user_id > 0) {
         $stmt = $conn->prepare("
-                    SELECT c.*, p.merk, p.harga_jual, p.harga_pokok, p.diskon_jual, p.foto 
+                    SELECT c.*, p.merk, p.hargajual, p.hargapokok, p.diskonjual, p.foto 
                     FROM carts c
                     JOIN product p ON c.product_id = p.kode
                     WHERE c.user_id = ?
