@@ -3,8 +3,8 @@ include "koneksimysql.php";
 header('Content-Type: application/json');
 
 if ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
-  parse_str(file_get_contents("php://input"), $input);
-  $id = isset($input['id']) ? intval($input['id']) : 0;
+  // Ambil dari query string, karena Retrofit @Query mengirim lewat URL
+  $id = isset($_GET['id']) ? intval($_GET['id']) : 0;
 
   if ($id === 0) {
     http_response_code(400);
