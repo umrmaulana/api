@@ -21,11 +21,13 @@ try {
                 ");
 
         if ($stmt === false) {
-          throw new Exception("Prepare failed: " . print_r($conn->errorInfo(), true));
+          throw new Exception("Prepare failed: " . $conn->error);
         }
 
-        $stmt->execute([$user_id]);
-        $cart_items = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $stmt->bind_param("i", $user_id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $cart_items = $result->fetch_all(MYSQLI_ASSOC);
 
         $response = [
           'status' => 'success',
@@ -39,7 +41,7 @@ try {
       }
       break;
 
-    // ... rest of your switch cases ...
+    // ... rest of your cases ...
 
     default:
       $response = [
@@ -47,11 +49,6 @@ try {
         'message' => 'Invalid action'
       ];
   }
-} catch (PDOException $e) {
-  $response = [
-    'status' => 'error',
-    'message' => 'Database error: ' . $e->getMessage()
-  ];
 } catch (Exception $e) {
   $response = [
     'status' => 'error',
