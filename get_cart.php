@@ -56,7 +56,7 @@ try {
 
       if ($user_id > 0 && !empty($product_id) && $quantity > 0) {
         // Cek stok produk
-        $stmt = $db->prepare("SELECT stok FROM products WHERE id = ?");
+        $stmt = $conn->prepare("SELECT stok FROM products WHERE id = ?");
         $stmt->execute([$product_id]);
         $product = $stmt->fetch();
 
@@ -69,7 +69,7 @@ try {
         }
 
         // Update atau tambahkan item ke keranjang
-        $stmt = $db->prepare("INSERT INTO carts (user_id, product_id, quantity, created_at)
+        $stmt = $conn->prepare("INSERT INTO carts (user_id, product_id, quantity, created_at)
                               VALUES (?, ?, ?, NOW())
                               ON DUPLICATE KEY UPDATE quantity = ?");
         $stmt->execute([$user_id, $product_id, $quantity, $quantity]);
@@ -98,7 +98,7 @@ try {
       }
 
       if ($user_id > 0 && !empty($product_id)) {
-        $stmt = $db->prepare("DELETE FROM carts WHERE user_id = ? AND product_id = ?");
+        $stmt = $conn->prepare("DELETE FROM carts WHERE user_id = ? AND product_id = ?");
         $stmt->execute([$user_id, $product_id]);
 
         $response = [
