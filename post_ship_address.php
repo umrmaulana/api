@@ -34,7 +34,7 @@ if (
         exit();
     }
 
-    $stmt = $conn->prepare("INSERT INTO ship_addresses (user_id, province_id, province_name,city_id, city_name, address, recipt_name, postal_code) 
+    $stmt = $conn->prepare("INSERT INTO ship_address (user_id, province_id, province_name,city_id, city_name, address, recipt_name, postal_code) 
                             VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
     if (
         $stmt->execute([
