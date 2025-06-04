@@ -72,7 +72,9 @@ try {
         $stmt = $conn->prepare("INSERT INTO carts (user_id, product_id, quantity, created_at)
                               VALUES (?, ?, ?, NOW())
                               ON DUPLICATE KEY UPDATE quantity = ?");
-        $stmt->execute([$user_id, $product_id, $quantity, $quantity]);
+
+        $stmt->bind_param("iiis", $user_id, $product_id, $quantity, $quantity);
+        $stmt->execute();
 
         $response = [
           'status' => 'success',
@@ -99,7 +101,9 @@ try {
 
       if ($user_id > 0 && !empty($product_id)) {
         $stmt = $conn->prepare("DELETE FROM carts WHERE user_id = ? AND product_id = ?");
-        $stmt->execute([$user_id, $product_id]);
+
+        $stmt->bind_param("ii", $user_id, $product_id);
+        $stmt->execute();
 
         $response = [
           'status' => 'success',
