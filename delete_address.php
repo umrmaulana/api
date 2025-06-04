@@ -13,7 +13,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
   }
 
   // Hapus data dari database
-  $stmt = $conn->prepare("DELETE FROM ship_addresses WHERE id = ?");
+  $stmt = $conn->prepare("DELETE FROM ship_address WHERE id = ?");
   $stmt->bind_param("i", $id);
 
   if ($stmt->execute()) {
