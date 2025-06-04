@@ -19,6 +19,11 @@ try {
                     JOIN product p ON c.product_id = p.kode
                     WHERE c.user_id = ?
                 ");
+
+        if ($stmt === false) {
+          throw new Exception("Prepare failed: " . print_r($conn->errorInfo(), true));
+        }
+
         $stmt->execute([$user_id]);
         $cart_items = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -34,60 +39,7 @@ try {
       }
       break;
 
-    case 'update_cart':
-      $input = json_decode(file_get_contents('php://input'), true);
-      $user_id = $input['user_id'] ?? 0;
-      $product_id = $input['product_id'] ?? '';
-      $quantity = $input['quantity'] ?? 0;
-
-      if ($user_id > 0 && !empty($product_id) && $quantity > 0) {
-        // Cek apakah item sudah ada di cart
-        $stmt = $conn->prepare("SELECT * FROM carts WHERE user_id = ? AND product_id = ?");
-        $stmt->execute([$user_id, $product_id]);
-        $existing_item = $stmt->fetch();
-
-        if ($existing_item) {
-          // Update quantity jika sudah ada
-          $stmt = $conn->prepare("UPDATE carts SET quantity = ? WHERE user_id = ? AND product_id = ?");
-          $stmt->execute([$quantity, $user_id, $product_id]);
-        } else {
-          // Tambahkan baru jika belum ada
-          $stmt = $conn->prepare("INSERT INTO carts (user_id, product_id, quantity, created_at) VALUES (?, ?, ?, NOW())");
-          $stmt->execute([$user_id, $product_id, $quantity]);
-        }
-
-        $response = [
-          'status' => 'success',
-          'message' => 'Cart updated successfully'
-        ];
-      } else {
-        $response = [
-          'status' => 'error',
-          'message' => 'Invalid parameters'
-        ];
-      }
-      break;
-
-    case 'remove_from_cart':
-      $input = json_decode(file_get_contents('php://input'), true);
-      $user_id = $input['user_id'] ?? 0;
-      $product_id = $input['product_id'] ?? '';
-
-      if ($user_id > 0 && !empty($product_id)) {
-        $stmt = $conn->prepare("DELETE FROM carts WHERE user_id = ? AND product_id = ?");
-        $stmt->execute([$user_id, $product_id]);
-
-        $response = [
-          'status' => 'success',
-          'message' => 'Item removed from cart'
-        ];
-      } else {
-        $response = [
-          'status' => 'error',
-          'message' => 'Invalid parameters'
-        ];
-      }
-      break;
+    // ... rest of your switch cases ...
 
     default:
       $response = [
