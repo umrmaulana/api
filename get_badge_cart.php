@@ -21,9 +21,12 @@ echo json_encode([
   'status' => 'success',
   'message' => 'Total items retrieved successfully',
   'result' => [
-    'user_id' => $user_id,
-    'total_items' => $total_items
+    [
+      'user_id' => $user_id,
+      'total_items' => $total_items
+    ]
   ]
 ]);
+
 $stmt->close();
 ?>
