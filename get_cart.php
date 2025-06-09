@@ -75,7 +75,7 @@ try {
                               VALUES (?, ?, ?, NOW())
                               ON DUPLICATE KEY UPDATE quantity = ?");
 
-        $stmt->bind_param("iiis", $user_id, $product_id, $quantity, $quantity);
+        $stmt->bind_param("isis", $user_id, $product_id, $quantity, $quantity);
         $stmt->execute();
 
         $response = [
@@ -103,8 +103,7 @@ try {
 
       if ($user_id > 0 && !empty($product_id)) {
         $stmt = $conn->prepare("DELETE FROM carts WHERE user_id = ? AND product_id = ?");
-
-        $stmt->bind_param("ii", $user_id, $product_id);
+        $stmt->bind_param("is", $user_id, $product_id);
         $stmt->execute();
 
         $response = [
