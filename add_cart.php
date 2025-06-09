@@ -5,41 +5,40 @@ header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: POST");
 header("Access-Control-Allow-Headers: Content-Type");
 
-
 $response = array();
-$input = json_decode(file_get_contents('php://input'), true);
 
-$user_id = $input['user_id'] ?? 0;
-$product_id = $input['product_id'] ?? '';
-$quantity = $input['quantity'] ?? 1;
+// Ambil data dari form-urlencoded, bukan dari JSON
+$user_id = $_POST['user_id'] ?? 0;
+$product_id = $_POST['product_id'] ?? '';
+$quantity = $_POST['quantity'] ?? 1;
 
 try {
-  // 1. Check product stock first
+  // 1. Cek stok produk
   $stmt = $conn->prepare("SELECT stok FROM products WHERE id = ?");
   $stmt->execute([$product_id]);
   $product = $stmt->fetch();
 
   if (!$product) {
-    throw new Exception("Product not found");
+    throw new Exception("Produk tidak ditemukan");
   }
 
-  // 2. Check if item already exists in cart
+  // 2. Cek apakah produk sudah ada di keranjang
   $stmt = $conn->prepare("SELECT * FROM carts WHERE user_id = ? AND product_id = ?");
   $stmt->execute([$user_id, $product_id]);
   $existing_item = $stmt->fetch();
 
   if ($existing_item) {
-    // Check if new quantity exceeds stock
+    // Hitung jumlah baru
     $new_qty = $existing_item['quantity'] + $quantity;
     if ($new_qty > $product['stok']) {
       throw new Exception("Stok tidak mencukupi");
     }
 
-    // Update quantity if exists
+    // Update jika sudah ada
     $stmt = $conn->prepare("UPDATE carts SET quantity = ? WHERE user_id = ? AND product_id = ?");
     $stmt->execute([$new_qty, $user_id, $product_id]);
   } else {
-    // Add new item if not exists
+    // Tambahkan item baru jika belum ada
     if ($quantity > $product['stok']) {
       throw new Exception("Stok tidak mencukupi");
     }
@@ -50,12 +49,12 @@ try {
 
   $response = [
     'status' => 'success',
-    'message' => 'Item added to cart'
+    'message' => 'Item berhasil ditambahkan ke keranjang'
   ];
 } catch (PDOException $e) {
   $response = [
     'status' => 'error',
-    'message' => 'Database error: ' . $e->getMessage()
+    'message' => 'Kesalahan database: ' . $e->getMessage()
   ];
 } catch (Exception $e) {
   $response = [

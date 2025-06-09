@@ -57,8 +57,10 @@ try {
       if ($user_id > 0 && !empty($product_id) && $quantity > 0) {
         // Cek stok produk
         $stmt = $conn->prepare("SELECT stok FROM products WHERE id = ?");
-        $stmt->execute([$product_id]);
-        $product = $stmt->fetch();
+        $stmt->bind_param("i", $product_id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $product = $result->fetch_assoc();
 
         if (!$product) {
           throw new Exception("Product not found");
