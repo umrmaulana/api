@@ -19,7 +19,11 @@ $data = $result->fetch_assoc();
 $total_items = $data['total'];
 echo json_encode([
   'status' => 'success',
-  'total_items' => $total_items
+  'message' => 'Total items in cart retrieved successfully',
+  'result' => [
+    'user_id' => $user_id,
+    'total_items' => $total_items
+  ]
 ]);
 $stmt->close();
 ?>
