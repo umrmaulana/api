@@ -1,5 +1,5 @@
 <?php
-include "koneksimysql.php"; // pastikan ini pakai mysqli, bukan PDO
+include "koneksimysql.php";
 
 header("Content-Type: application/json");
 header("Access-Control-Allow-Origin: *");
