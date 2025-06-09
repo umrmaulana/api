@@ -14,7 +14,7 @@ $quantity = $_POST['quantity'] ?? 1;
 
 try {
   // 1. Cek stok produk
-  $stmt = $conn->prepare("SELECT stok FROM products WHERE kode = ?");
+  $stmt = $conn->prepare("SELECT stok FROM product WHERE kode = ?");
   $stmt->execute([$product_id]);
   $product = $stmt->fetch();
 
