@@ -102,17 +102,18 @@ try {
       }
 
       if ($user_id > 0 && !empty($product_id)) {
-        $stmt = $conn->prepare("DELETE FROM carts WHERE user_id = ? AND product_id = ?");
-        $stmt->bind_param("is", $user_id, $product_id);
+        $stmt = $conn->prepare("DELETE FROM carts WHERE product_id = ? AND user_id = ?");
+        $stmt->bind_param("si", $product_id, $user_id);
         if ($stmt === false) {
           throw new Exception("Prepare failed: " . $conn->error);
         }
+
+        $stmt->execute();
 
         if (!$stmt->execute()) {
           throw new Exception("Execute failed: " . $stmt->error);
         }
 
-        $stmt->execute();
 
         $response = [
           'status' => 'success',
