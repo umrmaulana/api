@@ -57,7 +57,7 @@ try {
       if ($user_id > 0 && !empty($product_id) && $quantity > 0) {
         // Cek stok produk
         $stmt = $conn->prepare("SELECT stok FROM product WHERE kode = ?");
-        $stmt->bind_param("i", $product_id);
+        $stmt->bind_param("s", $product_id);
         $stmt->execute();
         $result = $stmt->get_result();
         $product = $result->fetch_assoc();
