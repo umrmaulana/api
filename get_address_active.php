@@ -5,7 +5,7 @@ header('Content-Type: application/json');
 if (isset($_GET['user_id'])) {
     $user_id = intval($_GET['user_id']);
 
-    $query = "SELECT * FROM ship_address WHERE user_id = ? and ";
+    $query = "SELECT * FROM ship_address WHERE user_id = ? and is_active = 1";
     $stmt = $conn->prepare($query);
     $stmt->bind_param("i", $user_id);
     $stmt->execute();
