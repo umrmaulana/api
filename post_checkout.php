@@ -1,0 +1,168 @@
+<?php
+header("Content-Type: application/json");
+include "koneksimysql.php";
+// Fungsi untuk generate order number
+function generateOrderNumber()
+{
+  return 'ORD-' . date('Ymd') . '-' . strtoupper(substr(uniqid(), -6));
+}
+
+// Fungsi untuk upload file
+function uploadProof($file)
+{
+  $targetDir = "proofs/";
+  $fileName = uniqid() . '_' . basename($file["name"]);
+  $targetFilePath = $targetDir . $fileName;
+  $fileType = strtolower(pathinfo($targetFilePath, PATHINFO_EXTENSION));
+
+  // Cek apakah file adalah gambar
+  $check = getimagesize($file["tmp_name"]);
+  if ($check === false) {
+    return ['success' => false, 'message' => 'File is not an image'];
+  }
+
+  // Cek ukuran file (max 2MB)
+  if ($file["size"] > 2000000) {
+    return ['success' => false, 'message' => 'File size exceeds 2MB'];
+  }
+
+  // Format file yang diizinkan
+  $allowedTypes = ['jpg', 'jpeg', 'png'];
+  if (!in_array($fileType, $allowedTypes)) {
+    return ['success' => false, 'message' => 'Only JPG, JPEG, PNG files are allowed'];
+  }
+
+  // Upload file
+  if (move_uploaded_file($file["tmp_name"], $targetFilePath)) {
+    return ['success' => true, 'path' => $targetFilePath];
+  } else {
+    return ['success' => false, 'message' => 'Error uploading file'];
+  }
+}
+
+$response = ['success' => false, 'message' => ''];
+
+try {
+  // Ambil data dari POST request
+  $data = json_decode(file_get_contents('php://input'), true);
+
+  if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Validasi data yang diperlukan
+    $requiredFields = [
+      'user_id',
+      'ship_address_id',
+      'sub_total',
+      'shipping_cost',
+      'final_price',
+      'courier',
+      'courier_service',
+      'estimated_day',
+      'total_weight',
+      'payment_method',
+      'payment_status',
+      'order_status',
+      'products'
+    ];
+
+    foreach ($requiredFields as $field) {
+      if (!isset($data[$field]) || empty($data[$field])) {
+        throw new Exception("Field $field is required");
+      }
+    }
+
+    // Mulai transaksi
+    $conn->begin_transaction();
+
+    // Generate order number
+    $orderNumber = generateOrderNumber();
+
+    // Handle proof transfer jika ada
+    $proofTransfer = '';
+    if (isset($_FILES['proof_transfer'])) {
+      $uploadResult = uploadProof($_FILES['proof_transfer']);
+      if (!$uploadResult['success']) {
+        throw new Exception($uploadResult['message']);
+      }
+      $proofTransfer = $uploadResult['path'];
+    }
+
+    // Insert data ke tabel orders
+    $stmt = $conn->prepare("INSERT INTO orders (
+            order_number, user_id, ship_address_id, sub_total, shipping_cost, final_price,
+            courier, courier_service, estimated_day, total_weight, payment_method,
+            payment_status, order_status, proof_transfer, created_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())");
+
+    $stmt->bind_param(
+      "siiidddssdssss",
+      $orderNumber,
+      $data['user_id'],
+      $data['ship_address_id'],
+      $data['sub_total'],
+      $data['shipping_cost'],
+      $data['final_price'],
+      $data['courier'],
+      $data['courier_service'],
+      $data['estimated_day'],
+      $data['total_weight'],
+      $data['payment_method'],
+      $data['payment_status'],
+      $data['order_status'],
+      $proofTransfer
+    );
+
+    if (!$stmt->execute()) {
+      throw new Exception("Failed to create order: " . $stmt->error);
+    }
+
+    $orderId = $stmt->insert_id;
+    $stmt->close();
+
+    // Insert produk ke order_details
+    foreach ($data['products'] as $product) {
+      $stmt = $conn->prepare("INSERT INTO order_details (
+                order_id, product_id, product_name, qty, price, sub_total, created_at
+            ) VALUES (?, ?, ?, ?, ?, ?, NOW())");
+
+      $subTotal = $product['price'] * $product['qty'];
+
+      $stmt->bind_param(
+        "issidd",
+        $orderId,
+        $product['product_id'],
+        $product['product_name'],
+        $product['qty'],
+        $product['price'],
+        $subTotal
+      );
+
+      if (!$stmt->execute()) {
+        throw new Exception("Failed to add product to order: " . $stmt->error);
+      }
+
+      $stmt->close();
+    }
+
+    // Commit transaksi jika semua berhasil
+    $conn->commit();
+
+    $response = [
+      'success' => true,
+      'message' => 'Order created successfully',
+      'order_id' => $orderId,
+      'order_number' => $orderNumber
+    ];
+  } else {
+    $response['message'] = 'Invalid request method';
+  }
+} catch (Exception $e) {
+  // Rollback transaksi jika ada error
+  if (isset($conn) && $conn->in_transaction) {
+    $conn->rollback();
+  }
+
+  $response['message'] = $e->getMessage();
+}
+
+echo json_encode($response);
+?>
