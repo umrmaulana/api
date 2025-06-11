@@ -32,12 +32,6 @@ try {
       'products'
     ];
 
-    foreach ($requiredFields as $field) {
-      if (!isset($data[$field]) || empty($data[$field])) {
-        throw new Exception("Field $field is required");
-      }
-    }
-
     // Mulai transaksi
     $conn->begin_transaction();
 
