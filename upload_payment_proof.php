@@ -6,42 +6,59 @@ $response = ['success' => false, 'message' => ''];
 
 try {
   if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Validasi input
-    if (!isset($_POST['order_id'])) {
-      throw new Exception("Order ID is required");
-    }
+    // Get order ID
     $orderId = $_POST['order_id'];
 
-    // Upload file proof transfer
-    if (!isset($_FILES['proof_transfer'])) {
-      throw new Exception("Proof transfer file is required");
-    }
+    // Upload proof transfer
+    $proofPath = '';
+    if (isset($_FILES['proof_transfer'])) {
+      $targetDir = "images/proofs/";
+      $fileName = uniqid() . '_' . basename($_FILES["proof_transfer"]["name"]);
+      $targetFilePath = $targetDir . $fileName;
+      $fileType = strtolower(pathinfo($targetFilePath, PATHINFO_EXTENSION));
 
-    $uploadResult = uploadProof($_FILES['proof_transfer']);
-    if (!$uploadResult['success']) {
-      throw new Exception($uploadResult['message']);
-    }
+      // Check if image file
+      $check = getimagesize($_FILES["proof_transfer"]["tmp_name"]);
+      if ($check === false) {
+        throw new Exception("File is not an image");
+      }
 
-    $proofPath = $uploadResult['path'];
+      // Check file size (max 2MB)
+      if ($_FILES["proof_transfer"]["size"] > 2000000) {
+        throw new Exception("File size exceeds 2MB");
+      }
+
+      // Allow certain file formats
+      $allowedTypes = ['jpg', 'jpeg', 'png'];
+      if (!in_array($fileType, $allowedTypes)) {
+        throw new Exception("Only JPG, JPEG, PNG files are allowed");
+      }
+
+      // Upload file
+      if (move_uploaded_file($_FILES["proof_transfer"]["tmp_name"], $targetFilePath)) {
+        $proofPath = $targetFilePath;
+      } else {
+        throw new Exception("Error uploading file");
+      }
+    }
 
     // Update order in database
     $stmt = $conn->prepare("UPDATE orders 
                               SET proof_transfer = ?, 
-                                  payment_status = 'pending_verification',
-                                  order_status = 'processing'
+                                  payment_status = 'pending_verification'
                               WHERE id = ?");
     $stmt->bind_param("si", $proofPath, $orderId);
 
-    if (!$stmt->execute()) {
+    if ($stmt->execute()) {
+      $response = [
+        'success' => true,
+        'message' => 'Payment proof uploaded successfully'
+      ];
+    } else {
       throw new Exception("Failed to update order: " . $stmt->error);
     }
 
     $stmt->close();
-
-    $response = [
-      'success' => true,
-      'message' => 'Payment proof uploaded successfully'
-    ];
   } else {
     $response['message'] = 'Invalid request method';
   }
@@ -50,35 +67,3 @@ try {
 }
 
 echo json_encode($response);
-function uploadProof($file)
-{
-  $targetDir = "uploads/";
-  $targetFile = $targetDir . basename($file["name"]);
-  $uploadOk = 1;
-  $imageFileType = strtolower(pathinfo($targetFile, PATHINFO_EXTENSION));
-
-  // Check if file is an image
-  $check = getimagesize($file["tmp_name"]);
-  if ($check === false) {
-    return ['success' => false, 'message' => 'File is not an image'];
-  }
-
-  // Check file size (max 5MB)
-  if ($file["size"] > 5000000) {
-    return ['success' => false, 'message' => 'File is too large'];
-  }
-
-  // Allow certain file formats
-  if (!in_array($imageFileType, ['jpg', 'png', 'jpeg', 'gif'])) {
-    return ['success' => false, 'message' => 'Only JPG, JPEG, PNG & GIF files are allowed'];
-  }
-
-  // Try to upload file
-  if (move_uploaded_file($file["tmp_name"], $targetFile)) {
-    return ['success' => true, 'path' => $targetFile];
-  } else {
-    return ['success' => false, 'message' => 'Error uploading file'];
-  }
-}
-
-?>
