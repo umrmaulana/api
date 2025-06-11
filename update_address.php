@@ -20,7 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     exit();
   }
   $stmt = $conn->prepare("UPDATE ship_address SET province_id = ?, province_name = ?, city_id = ?, city_name = ?, recipt_name = ?, no_tlp = ?, address = ?, postal_code = ? WHERE id = ?");
-  $stmt->bind_param("isissisii", $province_id, $province, $city_id, $city, $name, $no_tlp, $address, $postal, $id);
+  $stmt->bind_param("isissssii", $province_id, $province, $city_id, $city, $name, $no_tlp, $address, $postal, $id);
 
   if ($stmt->execute()) {
     echo json_encode(["message" => "Alamat diperbarui"]);

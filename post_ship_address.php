@@ -37,10 +37,10 @@ if (
     }
 
     $stmt = $conn->prepare("INSERT INTO ship_address (
-    user_id, province_id, province_name, city_id, city_name, address, recipt_name, no_tlp,postal_code) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+    user_id, province_id, province_name, city_id, city_name, address, recipt_name, no_tlp, postal_code) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
 
     $stmt->bind_param(
-        "iisisssii",
+        "iisissssi",
         $user_id,
         $province_id,
         $province_name,
