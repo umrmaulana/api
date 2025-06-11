@@ -1,43 +1,11 @@
 <?php
 header("Content-Type: application/json");
 include "koneksimysql.php";
+
 // Fungsi untuk generate order number
 function generateOrderNumber()
 {
   return 'ORD-' . date('Ymd') . '-' . strtoupper(substr(uniqid(), -6));
-}
-
-// Fungsi untuk upload file
-function uploadProof($file)
-{
-  $targetDir = "proofs/";
-  $fileName = uniqid() . '_' . basename($file["name"]);
-  $targetFilePath = $targetDir . $fileName;
-  $fileType = strtolower(pathinfo($targetFilePath, PATHINFO_EXTENSION));
-
-  // Cek apakah file adalah gambar
-  $check = getimagesize($file["tmp_name"]);
-  if ($check === false) {
-    return ['success' => false, 'message' => 'File is not an image'];
-  }
-
-  // Cek ukuran file (max 2MB)
-  if ($file["size"] > 2000000) {
-    return ['success' => false, 'message' => 'File size exceeds 2MB'];
-  }
-
-  // Format file yang diizinkan
-  $allowedTypes = ['jpg', 'jpeg', 'png'];
-  if (!in_array($fileType, $allowedTypes)) {
-    return ['success' => false, 'message' => 'Only JPG, JPEG, PNG files are allowed'];
-  }
-
-  // Upload file
-  if (move_uploaded_file($file["tmp_name"], $targetFilePath)) {
-    return ['success' => true, 'path' => $targetFilePath];
-  } else {
-    return ['success' => false, 'message' => 'Error uploading file'];
-  }
 }
 
 $response = ['success' => false, 'message' => ''];
@@ -76,15 +44,8 @@ try {
     // Generate order number
     $orderNumber = generateOrderNumber();
 
-    // Handle proof transfer jika ada
+    // Untuk bukti transfer, awalnya kosong karena akan diupload nanti
     $proofTransfer = '';
-    if (isset($_FILES['proof_transfer'])) {
-      $uploadResult = uploadProof($_FILES['proof_transfer']);
-      if (!$uploadResult['success']) {
-        throw new Exception($uploadResult['message']);
-      }
-      $proofTransfer = $uploadResult['path'];
-    }
 
     // Insert data ke tabel orders
     $stmt = $conn->prepare("INSERT INTO orders (
@@ -141,6 +102,14 @@ try {
       }
 
       $stmt->close();
+    }
+
+    // Jika metode pembayaran adalah COD, langsung update status menjadi paid
+    if ($data['payment_method'] === 'cod') {
+      $updateStmt = $conn->prepare("UPDATE orders SET payment_status = 'paid', order_status = 'processing' WHERE id = ?");
+      $updateStmt->bind_param("i", $orderId);
+      $updateStmt->execute();
+      $updateStmt->close();
     }
 
     // Commit transaksi jika semua berhasil
