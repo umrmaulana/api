@@ -10,6 +10,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $city = $_POST['city_name'];
   $name = $_POST['recipt_name'];
   $address = $_POST['address'];
+  $no_tlp = $_POST['no_tlp'];
   $postal = intval($_POST['postal_code']);
 
   // Validasi sederhana
@@ -18,8 +19,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     echo json_encode(["message" => "Field tidak boleh kosong."]);
     exit();
   }
-  $stmt = $conn->prepare("UPDATE ship_address SET province_id = ?, province_name = ?, city_id = ?, city_name = ?, recipt_name = ?, address = ?, postal_code = ? WHERE id = ?");
-  $stmt->bind_param("isisssii", $province_id, $province, $city_id, $city, $name, $address, $postal, $id);
+  $stmt = $conn->prepare("UPDATE ship_address SET province_id = ?, province_name = ?, city_id = ?, city_name = ?, recipt_name = ?, no_tlp = ?, address = ?, postal_code = ? WHERE id = ?");
+  $stmt->bind_param("isissisii", $province_id, $province, $city_id, $city, $name, $no_tlp, $address, $postal, $id);
 
   if ($stmt->execute()) {
     echo json_encode(["message" => "Alamat diperbarui"]);

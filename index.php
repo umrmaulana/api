@@ -12,6 +12,7 @@ $labels = [
     "hargajual" => "Harga Jual",
     "diskonjual" => "Diskon Jual",
     "stok" => "Stok",
+    'weight' => "Weight",
     "foto" => "Foto Baru",
     "deskripsi" => "Deskripsi",
     "view" => "View"
@@ -29,6 +30,7 @@ if (isset($_POST['tambah'])) {
     $hargajual = $_POST['hargajual'];
     $diskonjual = $_POST['diskonjual'] ?: 0;
     $stok = $_POST['stok'];
+    $weight = $_POST['weight'] ?: 0;
     $deskripsi = $_POST['deskripsi'];
     $view = $_POST['view'];
 
@@ -41,7 +43,7 @@ if (isset($_POST['tambah'])) {
     $conn->query("INSERT INTO product VALUES (
         '$kode', '$merk', '$kategori', '$satuan',
         $hargabeli, $diskonbeli, $hargapokok,
-        $hargajual, $diskonjual, $stok,
+        $hargajual, $diskonjual, $stok, $weight,
         '$filename', '$deskripsi', $view
     )");
     header("Location: index.php");
@@ -59,6 +61,7 @@ if (isset($_POST['update'])) {
     $hargajual = $_POST['hargajual'];
     $diskonjual = $_POST['diskonjual'] ?: 0;
     $stok = $_POST['stok'];
+    $weight = $_POST['weight'] ?: 0;
     $deskripsi = $_POST['deskripsi'];
     $view = $_POST['view'];
 
@@ -72,7 +75,7 @@ if (isset($_POST['update'])) {
         merk='$merk', kategori='$kategori', satuan='$satuan',
         hargabeli=$hargabeli, diskonbeli=$diskonbeli,
         hargapokok=$hargapokok, hargajual=$hargajual,
-        diskonjual=$diskonjual, stok=$stok,
+        diskonjual=$diskonjual, stok=$stok, weight=$weight,
         foto='$foto', deskripsi='$deskripsi', view=$view
         WHERE kode='$kode'");
     header("Location: index.php");
@@ -120,6 +123,8 @@ if (isset($_GET['hapus'])) {
             <div class="col"><input class="form-control" type="number" step="0.01" name="diskonjual"
                     placeholder="Diskon Jual"></div>
             <div class="col"><input class="form-control" type="number" name="stok" placeholder="Stok" required></div>
+            <div class="col"><input class="form-control" type="number" step="0.01" name="weight" placeholder="Weight">
+            </div>
         </div>
         <div class="mt-2">
             <input class="form-control" type="file" name="foto">
@@ -143,6 +148,7 @@ if (isset($_GET['hapus'])) {
                 <th>Harga Jual</th>
                 <th>Diskon Jual</th>
                 <th>Stok</th>
+                <th>Weight</th>
                 <th>Foto</th>
                 <th>Deskripsi</th>
                 <th>View</th>

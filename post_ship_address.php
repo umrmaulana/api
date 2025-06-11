@@ -13,6 +13,7 @@ if (
     isset($_POST['city_name']) &&
     isset($_POST['address']) &&
     isset($_POST['recipt_name']) &&
+    isset($_POST['no_tlp']) &&
     isset($_POST['postal_code'])
 ) {
     $user_id = $_POST['user_id'];
@@ -22,6 +23,7 @@ if (
     $city_name = $_POST['city_name'];
     $address = $_POST['address'];
     $recipt_name = $_POST['recipt_name'];
+    $no_tlp = $_POST['no_tlp'];
     $postal_code = $_POST['postal_code'];
 
     // Validasi sederhana
@@ -35,10 +37,10 @@ if (
     }
 
     $stmt = $conn->prepare("INSERT INTO ship_address (
-    user_id, province_id, province_name, city_id, city_name, address, recipt_name, postal_code) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+    user_id, province_id, province_name, city_id, city_name, address, recipt_name, no_tlp,postal_code) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
 
     $stmt->bind_param(
-        "iisisssi",
+        "iisisssii",
         $user_id,
         $province_id,
         $province_name,
@@ -46,6 +48,7 @@ if (
         $city_name,
         $address,
         $recipt_name,
+        $no_tlp,
         $postal_code
     );
 

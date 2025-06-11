@@ -33,6 +33,7 @@ while ($data = mysqli_fetch_object($hasil)) {
         'hargajual' => $data->hargajual,
         'diskonjual' => $data->diskonjual,
         'stok' => $data->stok,
+        'weight' => $data->weight,
         'foto' => $data->foto,
         'deskripsi' => $data->deskripsi,
         'view' => $data->view,
