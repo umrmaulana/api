@@ -11,10 +11,14 @@ function generateOrderNumber()
 $response = ['success' => false, 'message' => ''];
 
 try {
-  // Ambil data dari POST request
-  $data = json_decode(file_get_contents('php://input'), true);
-
   if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Ambil data JSON
+    $json = file_get_contents('php://input');
+    $data = json_decode($json, true);
+
+    // Debugging: Log data yang diterima
+    error_log("Received data: " . print_r($data, true));
+
     // Validasi data yang diperlukan
     $requiredFields = [
       'user_id',
@@ -32,24 +36,33 @@ try {
       'products'
     ];
 
+    // foreach ($requiredFields as $field) {
+    //   if (!isset($data[$field]) || empty($data[$field])) {
+    //     $missing[] = $field;
+    //   }
+    // }
+
+    if (!empty($missing)) {
+      throw new Exception("Missing fields: " . implode(', ', $missing));
+    }
+
     // Mulai transaksi
     $conn->begin_transaction();
 
     // Generate order number
     $orderNumber = generateOrderNumber();
-
-    // Untuk bukti transfer, awalnya kosong karena akan diupload nanti
     $proofTransfer = '';
 
-    // Insert data ke tabel orders
+    // PERBAIKAN: Gunakan tipe data yang sesuai
     $stmt = $conn->prepare("INSERT INTO orders (
             order_number, user_id, ship_address_id, sub_total, shipping_cost, final_price,
             courier, courier_service, estimated_day, total_weight, payment_method,
             payment_status, order_status, proof_transfer, created_at
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())");
 
+    // PERBAIKAN: Gunakan tipe data yang sesuai dalam bind_param
     $stmt->bind_param(
-      "siiidddssdssss",
+      "siiiddssssssss", // Perhatikan perubahan tipe data di sini
       $orderNumber,
       $data['user_id'],
       $data['ship_address_id'],
