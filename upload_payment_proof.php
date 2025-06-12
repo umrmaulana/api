@@ -45,7 +45,8 @@ try {
     // Update order in database
     $stmt = $conn->prepare("UPDATE orders 
                               SET proof_transfer = ?, 
-                                  payment_status = 'pending_verification'
+                                  payment_status = 'pending_verification',
+                                  order_status = 'processing',
                               WHERE id = ?");
     $stmt->bind_param("si", $proofPath, $orderId);
 
