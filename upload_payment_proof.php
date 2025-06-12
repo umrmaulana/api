@@ -57,8 +57,7 @@ try {
     // PERBAIKAN 5: Update database
     $stmt = $conn->prepare("UPDATE orders 
                                 SET proof_transfer = ?, 
-                                    payment_status = 'pending_verification',
-                                    order_status = 'processing'
+                                    payment_status = 'pending_verification'
                                 WHERE id = ?");
     $stmt->bind_param("si", $proofPath, $orderId);
 
