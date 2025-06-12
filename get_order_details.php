@@ -35,7 +35,7 @@ try {
       $products = [];
       while ($row = $productResult->fetch_assoc()) {
         // Tambahkan URL lengkap jika perlu
-        $row['image_url'] = 'https://android.umrmaulana.my.id/images/products/' . $row['image_url'];
+        $row['image_url'] = 'https://android.umrmaulana.my.id/api/images/product/' . $row['image_url'];
         $products[] = $row;
       }
 
