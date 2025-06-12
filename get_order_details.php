@@ -17,14 +17,25 @@ try {
     if ($result->num_rows > 0) {
       $order = $result->fetch_assoc();
 
-      // Query untuk mendapatkan produk dalam order
-      $productStmt = $conn->prepare("SELECT * FROM order_details WHERE order_id = ?");
+      // Query produk dalam order + gambar dari product
+      $productStmt = $conn->prepare("SELECT 
+                                        od.product_id,
+                                        od.product_name,
+                                        od.qty,
+                                        od.price,
+                                        od.sub_total,
+                                        p.foto AS image_url
+                                    FROM order_details od
+                                    JOIN product p ON od.product_id = p.kode
+                                    WHERE od.order_id = ?");
       $productStmt->bind_param("i", $orderId);
       $productStmt->execute();
       $productResult = $productStmt->get_result();
 
       $products = [];
       while ($row = $productResult->fetch_assoc()) {
+        // Tambahkan URL lengkap jika perlu
+        $row['image_url'] = 'https://android.umrmaulana.my.id/images/products/' . $row['image_url'];
         $products[] = $row;
       }
 
