@@ -8,12 +8,7 @@ try {
   if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $userId = $_POST['user_id'];
 
-    $stmt = $conn->prepare("SELECT 
-                id, order_number, created_at, order_status, 
-                payment_status, final_price 
-            FROM orders 
-            WHERE user_id = ? 
-            ORDER BY created_at DESC");
+    $stmt = $conn->prepare("SELECT * FROM orders WHERE user_id = ? ORDER BY created_at DESC");
     $stmt->bind_param("i", $userId);
     $stmt->execute();
     $result = $stmt->get_result();
