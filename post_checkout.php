@@ -109,6 +109,16 @@ try {
       }
 
       $stmt->close();
+
+      // Update stok produk
+      $updateStokStmt = $conn->prepare("UPDATE product SET stok = stok - ? WHERE kode = ?");
+      $updateStokStmt->bind_param("is", $product['qty'], $product['product_id']);
+
+      if (!$updateStokStmt->execute()) {
+        throw new Exception("Failed to update product stock: " . $updateStokStmt->error);
+      }
+
+      $updateStokStmt->close();
     }
 
     // Jika metode pembayaran adalah COD, langsung update status menjadi paid
