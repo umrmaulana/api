@@ -168,20 +168,21 @@ include 'koneksimysql.php';
                                     </thead>
                                     <tbody>
                                         <?php
-                                        $sql = "SELECT * from orders 
-                                        INNER JOIN user ON orders.user_id = user.id
-                                        INNER JOIN ship_address ON orders.ship_address_id=ship_address.id
-                                        ORDER BY orders.id desc";
+                                        $sql = "SELECT orders.*, user.email, ship_address.no_tlp, ship_address.address 
+                                                FROM orders 
+                                                INNER JOIN user ON orders.user_id = user.id
+                                                INNER JOIN ship_address ON orders.ship_address_id = ship_address.id
+                                                ORDER BY orders.id DESC";
                                         $no = 1;
                                         foreach ($conn->query($sql) as $row):
                                             ?>
                                             <tr>
                                                 <td><?= $no++ ?></td>
-                                                <td><?= $row['order_number'] ?></td>
-                                                <td><?= $row['email'] ?></td>
-                                                <td><?= $row['no_tlp'] ?></td>
-                                                <td><?= $row['address'] ?></td>
-                                                <td><?= number_format($row['final_price'], 0, ',', '.') ?></td>
+                                                <td><?= htmlspecialchars($row['order_number']) ?></td>
+                                                <td><?= htmlspecialchars($row['email']) ?></td>
+                                                <td><?= htmlspecialchars($row['no_tlp']) ?></td>
+                                                <td><?= htmlspecialchars($row['address']) ?></td>
+                                                <td>Rp<?= number_format($row['final_price'], 0, ',', '.') ?></td>
                                                 <td>
                                                     <?php
                                                     $paymentStatus = $row['payment_status'];
@@ -194,39 +195,38 @@ include 'koneksimysql.php';
                                                         $colorClass = 'badge badge-secondary';
                                                     }
                                                     ?>
-                                                    <span class="<?= $colorClass ?>"><?= $paymentStatus ?></span>
+                                                    <span
+                                                        class="<?= $colorClass ?>"><?= htmlspecialchars($paymentStatus) ?></span>
                                                     <a href="#" class="show-payment icon btn-icon-split"
-                                                        data-id="<?= $row['order_number'] ?>"
-                                                        data-payment_method="<?= $row['payment_method'] ?>"
-                                                        data-payment_status="<?= $row['payment_status'] ?>"
-                                                        data-proof_transfer="<?= $row['proof_transfer'] ?>"
-                                                        data-toggle="tooltip" title="<?= $row['payment_method'] ?>">
+                                                        data-id="<?= htmlspecialchars($row['order_number']) ?>"
+                                                        data-payment_method="<?= htmlspecialchars($row['payment_method']) ?>"
+                                                        data-payment_status="<?= htmlspecialchars($row['payment_status']) ?>"
+                                                        data-proof_transfer="<?= htmlspecialchars($row['proof_transfer']) ?>"
+                                                        data-toggle="tooltip"
+                                                        title="<?= htmlspecialchars($row['payment_method']) ?>">
                                                         <i class="fas fa-eye"></i>
+                                                    </a>
                                                 </td>
-                                                <td><?php
-                                                $status = $row['order_status'];
-                                                $colorClass = '';
-                                                if ($status == 'Shipped') {
-                                                    $colorClass = 'badge badge-success';
-                                                } elseif ($status == 'Pending') {
-                                                    $colorClass = 'badge badge-warning';
-                                                } elseif ($status == 'Cancelled') {
-                                                    $colorClass = 'badge badge-danger';
-                                                } elseif ($status == 'Processing') {
-                                                    $colorClass = 'badge badge-info';
-                                                } elseif ($status == 'Delivered') {
-                                                    $colorClass = 'badge badge-success';
-                                                } elseif ($status == 'Completed') {
-                                                    $colorClass = 'badge badge-success';
-                                                } elseif ($status == 'Failed') {
-                                                    $colorClass = 'badge badge-danger';
-                                                } else {
-                                                    $colorClass = 'badge badge-secondary';
-                                                }
-                                                ?>
-                                                    <span class="<?= $colorClass ?>"><?= $status ?></span>
-                                                    <a href="#" class="edit-btn" data-id="<?= $row['order_number'] ?>"
-                                                        data-order_status="<?= $row['order_status'] ?>">
+                                                <td>
+                                                    <?php
+                                                    $status = $row['order_status'];
+                                                    $colorClass = '';
+                                                    if ($status == 'Shipped' || $status == 'Delivered' || $status == 'Completed') {
+                                                        $colorClass = 'badge badge-success';
+                                                    } elseif ($status == 'Pending') {
+                                                        $colorClass = 'badge badge-warning';
+                                                    } elseif ($status == 'Cancelled' || $status == 'Failed') {
+                                                        $colorClass = 'badge badge-danger';
+                                                    } elseif ($status == 'Processing') {
+                                                        $colorClass = 'badge badge-info';
+                                                    } else {
+                                                        $colorClass = 'badge badge-secondary';
+                                                    }
+                                                    ?>
+                                                    <span class="<?= $colorClass ?>"><?= htmlspecialchars($status) ?></span>
+                                                    <a href="#" class="edit-btn"
+                                                        data-id="<?= htmlspecialchars($row['order_number']) ?>"
+                                                        data-order_status="<?= htmlspecialchars($row['order_status']) ?>">
                                                         <i class="fa fa-pen"></i>
                                                     </a>
                                                 </td>
@@ -239,7 +239,6 @@ include 'koneksimysql.php';
                                                         </span>
                                                         <span class="text">Detail</span>
                                                     </a>
-
                                                 </td>
                                             </tr>
                                         <?php endforeach ?>
@@ -295,13 +294,16 @@ include 'koneksimysql.php';
                         <div class="modal-dialog modal-lg" role="document">
                             <div class="modal-content">
                                 <div class="modal-header">
-                                    <h5 class="modal-title text-white">Detail Produk Pesanan</h5>
+                                    <h5 class="modal-title" id="detailModalLabel">Order Details</h5>
                                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                        <span>&times;</span>
+                                        <span aria-hidden="true">&times;</span>
                                     </button>
                                 </div>
                                 <div class="modal-body" id="order-detail-content">
-                                    <p>Loading...</p>
+                                    <!-- Content will be loaded via AJAX -->
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                                 </div>
                             </div>
                         </div>
@@ -405,27 +407,40 @@ include 'koneksimysql.php';
     <!-- Page level custom scripts -->
     <script src="js/demo/datatables-demo.js"></script>
 
-    <!-- modal update -->
     <script>
         $(document).ready(function () {
+            if ($.fn.DataTable.isDataTable('#dataTable')) {
+                $('#dataTable').DataTable().destroy();
+            }
             // Initialize DataTable
+            var table = $('#dataTable').DataTable({
+                columnDefs: [
+                    { width: '5%', targets: 0 },
+                    { width: '10%', targets: 1 },
+                    { width: '10%', targets: 2 },
+                    { width: '10%', targets: 3 },
+                    { width: '15%', targets: 4 },
+                    { width: '10%', targets: 5 },
+                    { width: '5%', targets: 6 },
+                    { width: '5%', targets: 7 },
+                    { width: '5%', targets: 8 }
+                ],
+                responsive: true
+            });
+
+            // Edit button handler
             $(".edit-btn").on("click", function () {
                 var id = $(this).data("id");
                 var status = $(this).data("order_status");
-                var paymentMethod = $(this).data("payment_method");
-                var paymentStatus = $(this).data("payment_status");
-                var proofTransfer = $(this).data("proof_transfer");
-
 
                 $("#update-id").val(id);
                 $("#update-status").val(status);
-                $("#preview-paymentMethod").val(paymentMethod);
-                $("#preview-paymentStatus").val(paymentStatus);
-                $("#preview-proofTransfer").attr("src", "../images/proofs/" + proofTransfer);
-
                 $("#updateModal").modal("show");
             });
-            $(".show-payment").on("click", function () {
+
+            // Payment info handler
+            $(".show-payment").on("click", function (e) {
+                e.preventDefault();
                 var orderNumber = $(this).data("id");
                 var paymentMethod = $(this).data("payment_method");
                 var paymentStatus = $(this).data("payment_status");
@@ -434,32 +449,41 @@ include 'koneksimysql.php';
                 Swal.fire({
                     title: 'Payment Information',
                     html: `
-                        <p><strong>Order Number:</strong> ${orderNumber}</p>
-                        <p><strong>Payment Method:</strong> ${paymentMethod}</p>
-                        <p><strong>Payment Status:</strong> ${paymentStatus}</p>
-                        <img src="../images/proofs/${proofTransfer}" alt="Proof of Transfer" style="width: 100%; max-width: 400px;">
-                    `,
+                <div class="text-left">
+                    <p><strong>Order Number:</strong> ${orderNumber}</p>
+                    <p><strong>Payment Method:</strong> ${paymentMethod}</p>
+                    <p><strong>Payment Status:</strong> ${paymentStatus}</p>
+                    ${proofTransfer ? `<img src="../images/proofs/${proofTransfer}" alt="Proof of Transfer" class="img-fluid mt-3">` : '<p>No proof of transfer available</p>'}
+                </div>
+            `,
                     showCloseButton: true,
                     showCancelButton: false,
                     focusConfirm: false,
                     confirmButtonText: 'Close',
+                    width: '800px'
                 });
             });
-            $('.show-detail').on('click', function () {
-                var orderId = $(this).data('order-id');
 
-                $('#order-detail-content').html('<p>Loading...</p>');
+            // Order detail handler
+            $('.show-detail').on('click', function (e) {
+                e.preventDefault();
+                var orderId = $(this).data('order-id');
+                console.log("Fetching details for order ID:", orderId);
+
+                $('#order-detail-content').html('<div class="text-center p-4"><i class="fas fa-spinner fa-spin fa-2x"></i><p>Loading order details...</p></div>');
 
                 $.ajax({
                     url: 'get_order_details.php',
                     type: 'GET',
                     data: { order_id: orderId },
+                    dataType: 'html',
                     success: function (response) {
+                        console.log("Response received:", response);
                         $('#order-detail-content').html(response);
-                        console.log("Order ID:", orderId);
                     },
-                    error: function () {
-                        $('#order-detail-content').html('<p class="text-danger">Gagal mengambil data.</p>');
+                    error: function (xhr, status, error) {
+                        console.error("AJAX Error:", status, error);
+                        $('#order-detail-content').html('<div class="alert alert-danger">Failed to load order details. Please try again.</div>');
                     }
                 });
             });

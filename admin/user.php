@@ -605,10 +605,10 @@ include 'koneksimysql.php';
 
     <!-- script modal -->
     <script>
-        if ($.fn.DataTable.isDataTable('#dataTable')) {
-            $('#dataTable').DataTable().destroy();
-        }
         $(document).ready(function () {
+            if ($.fn.DataTable.isDataTable('#dataTable')) {
+                $('#dataTable').DataTable().destroy();
+            }
             function bindEditButtons() {
                 $(".edit-btn").on("click", function () {
                     var id = $(this).data("id");

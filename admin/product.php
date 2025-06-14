@@ -630,10 +630,22 @@ include 'koneksimysql.php';
 
     <!-- script modal -->
     <script>
-        if ($.fn.DataTable.isDataTable('#dataTable')) {
-            $('#dataTable').DataTable().destroy();
-        }
         $(document).ready(function () {
+            if ($.fn.DataTable.isDataTable('#dataTable')) {
+                $('#dataTable').DataTable().destroy();
+            }
+            var table = $('#dataTable').DataTable({
+                columnDefs: [
+                    { width: '5%', targets: 0 },
+                    { width: '8%', targets: 1 },
+                    { width: '10%', targets: 2 },
+                    { width: '10%', targets: 3 },
+                    { width: '15%', targets: 4 },
+                    { width: '10%', targets: 5 },
+                    { width: '10%', targets: 6 },
+                    { width: '10%', targets: 7 },
+                ]
+            });
             function bindEditButtons() {
                 $(".edit-btn").on("click", function () {
                     var id = $(this).data("id");
