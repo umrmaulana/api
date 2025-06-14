@@ -429,63 +429,79 @@ include 'koneksimysql.php';
             });
 
             // Edit button handler
-            $(".edit-btn").on("click", function () {
-                var id = $(this).data("id");
-                var status = $(this).data("order_status");
+            function bindEditButtons() {
+                $(".edit-btn").on("click", function () {
+                    var id = $(this).data("id");
+                    var status = $(this).data("order_status");
 
-                $("#update-id").val(id);
-                $("#update-status").val(status);
-                $("#updateModal").modal("show");
-            });
+                    $("#update-id").val(id);
+                    $("#update-status").val(status);
+                    $("#updateModal").modal("show");
+                });
+            }
 
             // Payment info handler
-            $(".show-payment").on("click", function (e) {
-                e.preventDefault();
-                var orderNumber = $(this).data("id");
-                var paymentMethod = $(this).data("payment_method");
-                var paymentStatus = $(this).data("payment_status");
-                var proofTransfer = $(this).data("proof_transfer");
+            function bindPaymentInfoButtons() {
+                $(".show-payment").on("click", function (e) {
+                    e.preventDefault();
+                    var orderNumber = $(this).data("id");
+                    var paymentMethod = $(this).data("payment_method");
+                    var paymentStatus = $(this).data("payment_status");
+                    var proofTransfer = $(this).data("proof_transfer");
 
-                Swal.fire({
-                    title: 'Payment Information',
-                    html: `
-                <div class="text-left">
-                    <p><strong>Order Number:</strong> ${orderNumber}</p>
-                    <p><strong>Payment Method:</strong> ${paymentMethod}</p>
-                    <p><strong>Payment Status:</strong> ${paymentStatus}</p>
-                    ${proofTransfer ? `<img src="../images/proofs/${proofTransfer}" alt="Proof of Transfer" class="img-fluid mt-3">` : '<p>No proof of transfer available</p>'}
-                </div>
-            `,
-                    showCloseButton: true,
-                    showCancelButton: false,
-                    focusConfirm: false,
-                    confirmButtonText: 'Close',
-                    width: '800px'
+                    Swal.fire({
+                        title: 'Payment Information',
+                        html: `
+                            <div class="text-left">
+                                <p><strong>Order Number:</strong> ${orderNumber}</p>
+                                <p><strong>Payment Method:</strong> ${paymentMethod}</p>
+                                <p><strong>Payment Status:</strong> ${paymentStatus}</p>
+                                ${proofTransfer ? `<img src="${proofTransfer}" alt="Proof of Transfer" class="img-fluid mt-3">` : '<p>No proof of transfer available</p>'}
+                            </div>
+                        `,
+                        showCloseButton: true,
+                        showCancelButton: false,
+                        focusConfirm: false,
+                        confirmButtonText: 'Close',
+                        width: '800px'
+                    });
                 });
-            });
+            }
 
             // Order detail handler
-            $('.show-detail').on('click', function (e) {
-                e.preventDefault();
-                var orderId = $(this).data('order-id');
-                console.log("Fetching details for order ID:", orderId);
+            function bindOrderDetailButtons() {
+                $(".show-detail").on("click", function (e) {
+                    e.preventDefault();
+                    var orderId = $(this).data("order-id");
+                    console.log("Fetching details for order ID:", orderId);
 
-                $('#order-detail-content').html('<div class="text-center p-4"><i class="fas fa-spinner fa-spin fa-2x"></i><p>Loading order details...</p></div>');
+                    $("#order-detail-content").html('<div class="text-center p-4"><i class="fas fa-spinner fa-spin fa-2x"></i><p>Loading order details...</p></div>');
 
-                $.ajax({
-                    url: 'get_order_details.php',
-                    type: 'GET',
-                    data: { order_id: orderId },
-                    dataType: 'html',
-                    success: function (response) {
-                        console.log("Response received:", response);
-                        $('#order-detail-content').html(response);
-                    },
-                    error: function (xhr, status, error) {
-                        console.error("AJAX Error:", status, error);
-                        $('#order-detail-content').html('<div class="alert alert-danger">Failed to load order details. Please try again.</div>');
-                    }
+                    $.ajax({
+                        url: 'get_order_details.php',
+                        type: 'GET',
+                        data: { order_id: orderId },
+                        dataType: 'html',
+                        success: function (response) {
+                            console.log("Response received:", response);
+                            $("#order-detail-content").html(response);
+                        },
+                        error: function (xhr, status, error) {
+                            console.error("AJAX Error:", status, error);
+                            $("#order-detail-content").html('<div class="alert alert-danger">Failed to load order details. Please try again.</div>');
+                        }
+                    });
                 });
+            }
+            // Bind buttons after DataTable initialization
+            bindEditButtons();
+            bindPaymentInfoButtons();
+            bindOrderDetailButtons();
+            // Rebind buttons after table redraw
+            table.on('draw', function () {
+                bindEditButtons();
+                bindPaymentInfoButtons();
+                bindOrderDetailButtons();
             });
         });
     </script>
