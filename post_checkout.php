@@ -123,7 +123,7 @@ try {
 
     // Jika metode pembayaran adalah COD, langsung update status menjadi paid
     if ($data['payment_method'] === 'cod') {
-      $updateStmt = $conn->prepare("UPDATE orders SET payment_status = 'paid', order_status = 'processing' WHERE id = ?");
+      $updateStmt = $conn->prepare("UPDATE orders SET payment_status = 'Paid', order_status = 'Processing' WHERE id = ?");
       $updateStmt->bind_param("i", $orderId);
       $updateStmt->execute();
       $updateStmt->close();
