@@ -290,10 +290,10 @@ $categories = $conn->query("SELECT kategori, COUNT(*) as count FROM product GROU
 
     <!-- Page level plugins -->
     <script src="vendor/datatables/jquery.dataTables.min.js"></script>
-    <script src="vendor/datatables/dataTables.bootstrap4.min.js"></script>
+    <!-- <script src="vendor/datatables/dataTables.bootstrap4.min.js"></script> -->
 
     <!-- Page level custom scripts -->
-    <script src="js/demo/datatables-demo.js"></script>
+    <!-- <script src="js/demo/datatables-demo.js"></script> -->
 
     <!-- Page level plugins -->
     <script src="vendor/chart.js/Chart.min.js"></script>
@@ -456,7 +456,20 @@ $categories = $conn->query("SELECT kategori, COUNT(*) as count FROM product GROU
                 cutoutPercentage: 70,
             },
         });
+
+        $(document).ready(function () {
+            $("#dataTable").DataTable();
+            new DataTable("#dataTable", {
+                columnDefs: [{ width: "100%", targets: 6 }],
+                searching: false,
+                paginate: false,
+                sort: false
+            });
+        });
+
         $(document).on("click", ".show-detail", function (e) {
+            e.preventDefault();
+            var orderId = $(this).data("order-id");
             if ($.fn.DataTable.isDataTable('#dataTable')) {
                 $('#dataTable').DataTable().destroy();
             }
@@ -470,6 +483,9 @@ $categories = $conn->query("SELECT kategori, COUNT(*) as count FROM product GROU
                     { width: '5%', targets: 4 },
                     { width: '5%', targets: 5 },
                 ],
+                searching: false,
+                paginate: false,
+                sort: false,
                 responsive: true
             });
 
@@ -505,6 +521,74 @@ $categories = $conn->query("SELECT kategori, COUNT(*) as count FROM product GROU
                 bindOrderDetailButtons();
             });
         });
+
+        $(document).ready(function (e) {
+            if ($.fn.DataTable.isDataTable('#dataTable')) {
+                $('#dataTable').DataTable().destroy();
+            }
+            $('#dataTable').DataTable({
+                columnDefs: [
+                    { width: '15%', targets: 0 },
+                    { width: '10%', targets: 1 },
+                    { width: '10%', targets: 2 },
+                    { width: '10%', targets: 3 },
+                    { width: '5%', targets: 4 },
+                    { width: '5%', targets: 5 }
+                ],
+                searching: false,
+                paginate: false,
+                sort: false,
+                responsive: true
+            });
+        });
+
+        $(document).on("click", ".show-detail", function (e) {
+            e.preventDefault();
+            var orderId = $(this).data("order-id");
+
+            $("#order-detail-content").html(`
+        <div class="text-center p-4">
+            <i class="fas fa-spinner fa-spin fa-2x"></i>
+            <p>Loading order details...</p>
+        </div>`);
+
+            $.ajax({
+                url: 'get_order_details.php',
+                type: 'GET',
+                data: { order_id: orderId },
+                dataType: 'html',
+                success: function (response) {
+                    // Tempelkan data detail
+                    $("#order-detail-content").html(response);
+
+                    // Hancurkan DataTable sebelumnya (jika ada)
+                    if ($.fn.DataTable.isDataTable('#dataTable')) {
+                        $('#dataTable').DataTable().destroy();
+                    }
+
+                    // Cek jumlah kolom di <thead> dan <tbody> harus konsisten sebelum inisialisasi
+                    $('#dataTable').DataTable({
+                        columnDefs: [
+                            { width: '15%', targets: 0 },
+                            { width: '10%', targets: 1 },
+                            { width: '10%', targets: 2 },
+                            { width: '10%', targets: 3 },
+                            { width: '5%', targets: 4 },
+                            { width: '5%', targets: 5 }
+                        ],
+                        searching: false,
+                        paginate: false,
+                        sort: false,
+                        responsive: true
+                    });
+                },
+                error: function (xhr, status, error) {
+                    console.error("AJAX Error:", status, error);
+                    $("#order-detail-content").html('<div class="alert alert-danger">Failed to load order details. Please try again.</div>');
+                }
+            });
+        });
+
     </script>
 </body>
 

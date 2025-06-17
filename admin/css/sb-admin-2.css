@@ -3272,7 +3272,7 @@ input[type="button"].btn-block {
   font-size: 0.85rem;
   text-align: left;
   list-style: none;
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--modal-glass-bg);
   border: 1px solid var(--glass-border);
   border-radius: 0.35rem;
 }
