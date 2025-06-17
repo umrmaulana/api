@@ -1,9 +1,9 @@
 # Aktifkan URL rewriting
-RewriteEngine On
+# RewriteEngine On
 
 # Hilangkan .php dari URL
-RewriteCond %{REQUEST_FILENAME}.php -f
-RewriteRule ^(.*)$ $1.php [L]
+# RewriteCond %{REQUEST_FILENAME}.php -f
+# RewriteRule ^(.*)$ $1.php [L]
 
 # Redirect akses langsung ke file PHP (opsional)
 # Agar hanya bisa diakses tanpa .php
@@ -12,10 +12,10 @@ RewriteRule ^(.*)$ $1.php [L]
 # RewriteRule ^(.*)\.php$ /$1 [R=301,L]
 
 # Blok akses ke file sensitif
-<FilesMatch "^(config|.env|composer\.json|composer\.lock|error\.log)$">
-  Order Allow,Deny
-  Deny from all
-</FilesMatch>
+# <FilesMatch "^(config|.env|composer\.json|composer\.lock|error\.log)$">
+#   Order Allow,Deny
+#   Deny from all
+# </FilesMatch>
 
 # (Optional) Cegah akses ke direktori secara langsung
-Options -Indexes
+# Options -Indexes
